@@ -1,0 +1,33 @@
+branches:
+  only:
+    - master
+os: osx
+osx_image: xcode8
+language: "bash"
+sudo: false
+before_install:
+  - wget https://raw.githubusercontent.com/y-yu/install-tex-travis/master/install-tex.sh
+  - wget https://raw.githubusercontent.com/y-yu/install-tex-travis/master/tlmgr.sh
+  - chmod +x install-tex.sh tlmgr.sh
+install:
+  - . ./install-tex.sh
+  - ./tlmgr.sh update --self --all || echo "ignore errors"
+script:
+- tlmgr init-usertree
+- tlmgr install arara
+- mkdir _build
+- ./tlmgr.sh --version
+- ./tlmgr.sh update --self --all || echo "ignore errors"
+- ./tlmgr.sh install collection-langgerman
+- arara nopTex.tex -v
+- arara nopTex.tex -v
+deploy:
+  provider: releases
+  api_key:
+    secure: 479fd3864ef3dc25a705627c6ff40e8bf0b725b2
+  file: _build/nopTex.pdf
+  skip_cleanup: true
+  on:
+    repo: Moorviper/NOP_tex
+    tags: true
+    all_branches: true
